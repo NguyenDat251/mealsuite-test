@@ -4,7 +4,7 @@ import axios from '../../../utils/axios';
 import SingleTicket from '../singleTicket/singleTicket';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
+import styled from 'styled-components';
 export interface TicketsProps {
   tickets: Ticket[];
   users: User[];
@@ -44,9 +44,13 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
     if (!ticketDescription) return;
 
     setIsAddingTicket(true);
-    await axios.post('/api/tickets', {
-      description: ticketDescription,
-    });
+    try {
+      await axios.post('/api/tickets', {
+        description: ticketDescription,
+      });
+    } catch (e) {
+      console.error(e);
+    }
     setIsAddingTicket(false);
     setTicketDescription('');
   };
@@ -58,30 +62,39 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
   return (
     <div className={styles['tickets']}>
       <h2>Tickets</h2>
-      <input
-        type="text"
-        placeholder="Enter ticket description"
-        onChange={handleChangeTicketDescription}
-        value={ticketDescription}
-      />
-      <button onClick={handleAddTicket} disabled={isAddingTicket}>
-        Add ticket
-      </button>
-
-      {/* //add filter by completed */}
-      <select
-        onChange={(e) =>
-          setFilterCompleteStatus(e.target.value as COMPLETE_STATUS)
-        }
-        value={filterCompleteStatus}
+      <div
+        style={{
+          display: 'flex',
+          gap: '16px',
+        }}
       >
-        <option value={COMPLETE_STATUS.ALL}>All</option>
-        <option value={COMPLETE_STATUS.COMPLETED}>Completed</option>
-        <option value={COMPLETE_STATUS.NOT_COMPLETED}>Not completed</option>
-      </select>
+        <div>
+          <input
+            type="text"
+            placeholder="Enter ticket description"
+            onChange={handleChangeTicketDescription}
+            value={ticketDescription}
+          />
+          <button onClick={handleAddTicket} disabled={isAddingTicket}>
+            Add ticket
+          </button>
+        </div>
+
+        {/* //add filter by completed */}
+        <select
+          onChange={(e) =>
+            setFilterCompleteStatus(e.target.value as COMPLETE_STATUS)
+          }
+          value={filterCompleteStatus}
+        >
+          <option value={COMPLETE_STATUS.ALL}>All</option>
+          <option value={COMPLETE_STATUS.COMPLETED}>Completed</option>
+          <option value={COMPLETE_STATUS.NOT_COMPLETED}>Not completed</option>
+        </select>
+      </div>
 
       {tickets ? (
-        <div>
+        <TicketWrapper>
           {tickets
             .filter((ticket) => {
               if (filterCompleteStatus === COMPLETE_STATUS.ALL) {
@@ -94,23 +107,25 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
             })
             .map((t) => (
               <div key={t.id}>
-                <SingleTicket
-                  ticket={t}
-                  user={getAssignee(t.assigneeId)}
-                  users={users}
-                  readOnly
-                />
+                <SingleTicket ticket={t} users={users} readOnly />
                 <button onClick={() => handleGoToDetailPage(t.id)}>
                   Go to detail page
                 </button>
               </div>
             ))}
-        </div>
+        </TicketWrapper>
       ) : (
-        <span>...</span>
+        <span>Loading...</span>
       )}
     </div>
   );
 }
+
+const TicketWrapper = styled['div']`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+`;
 
 export default Tickets;

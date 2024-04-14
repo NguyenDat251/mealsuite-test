@@ -3,7 +3,6 @@ import SingleTicket from '../singleTicket/singleTicket';
 import { useParams } from 'react-router-dom';
 import axios from '../../../utils/axios';
 import { Ticket, User } from '@acme/shared-models';
-import { useState } from 'react';
 import {
   OnChangeAssignee,
   OnChangeCompletedStatus,
@@ -15,14 +14,12 @@ const requestChangeAssignee: OnChangeAssignee = debounce(
   async (ticket, assigneeId) => {
     const ticketId = ticket.id;
 
-    //if the assignee is the same, no need to make a request
-    // if (assigneeId === ticket.assigneeId) {
-    //   return;
-    // }
-
-    await axios.put(`/api/tickets/${ticketId}/unassign`);
-
-    axios.put(`/api/tickets/${ticketId}/assign/${assigneeId}`);
+    try {
+      await axios.put(`/api/tickets/${ticketId}/unassign`);
+      axios.put(`/api/tickets/${ticketId}/assign/${assigneeId}`);
+    } catch (e) {
+      console.error(e);
+    }
   },
   1000
 );
@@ -31,15 +28,14 @@ const requestChangeCompletedStatus: OnChangeCompletedStatus = debounce(
   (ticket, isCompleted) => {
     const ticketId = ticket.id;
 
-    //if the completed status is the same, no need to make a request
-    // if (isCompleted === ticket.completed) {
-    //   return;
-    // }
-
-    if (isCompleted) {
-      axios.put(`/api/tickets/${ticketId}/complete`);
-    } else {
-      axios.delete(`/api/tickets/${ticketId}/complete`);
+    try {
+      if (isCompleted) {
+        axios.put(`/api/tickets/${ticketId}/complete`);
+      } else {
+        axios.delete(`/api/tickets/${ticketId}/complete`);
+      }
+    } catch (e) {
+      console.error(e);
     }
   },
   500
@@ -109,12 +105,16 @@ function TicketDetails({
   useEffect(() => {
     if (!ticket) {
       //if ticket is not found, fetch single ticket
-      axios.get(`/api/tickets/${id}`).then((res) => {
-        const ticket = res.data;
-        setTickets((tickets) => {
-          return [...tickets, ticket];
+      try {
+        axios.get(`/api/tickets/${id}`).then((res) => {
+          const ticket = res.data;
+          setTickets((tickets) => {
+            return [...tickets, ticket];
+          });
         });
-      });
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, [id, ticket, setTickets]);
 
@@ -122,17 +122,18 @@ function TicketDetails({
     <div>
       <h2>Ticket Details</h2>
       <button onClick={handleGoBack}>Go back</button>
-      {ticket && (
+      {ticket ? (
         <div>
           <SingleTicket
             key={ticket.id}
             ticket={ticket}
-            user={getAssignee(ticket.assigneeId)}
             users={users}
             onChangeCompletedStatus={onChangeCompletedStatus}
             onChangeAssignee={onChangeAssignee}
           />
         </div>
+      ) : (
+        <div>Loading...</div>
       )}
     </div>
   );

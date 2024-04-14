@@ -13,8 +13,12 @@ const App = () => {
   const [users, setUsers] = useState([] as User[]);
 
   const fetchTickets = useCallback(async () => {
-    const data = await axios.get('/api/tickets');
-    setTickets(data.data);
+    try {
+      const data = await axios.get('/api/tickets');
+      setTickets(data.data);
+    } catch (e) {
+      console.error(e);
+    }
   }, []);
 
   // Very basic way to synchronize state with server.

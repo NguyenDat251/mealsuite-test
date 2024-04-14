@@ -3,11 +3,11 @@ import {
   OnChangeCompletedStatus,
 } from '../../../types/general';
 import { Ticket, User } from '@acme/shared-models';
+import styled from 'styled-components';
 
 type SingleTicketProps = {
   ticket: Ticket;
   users: User[];
-  user: User | undefined;
   readOnly?: boolean;
   onChangeCompletedStatus?: OnChangeCompletedStatus;
   onChangeAssignee?: OnChangeAssignee;
@@ -16,7 +16,6 @@ type SingleTicketProps = {
 const SingleTicket = ({
   ticket,
   users,
-  user,
   readOnly = false,
   onChangeCompletedStatus,
   onChangeAssignee,
@@ -24,19 +23,19 @@ const SingleTicket = ({
   const assignee = users.find((u) => u.id === ticket.assigneeId);
   const completed = ticket.completed;
 
-  const handleChangeCompleted = (e: any) => {
+  const handleChangeCompleted = () => {
     if (readOnly) return;
 
     onChangeCompletedStatus && onChangeCompletedStatus(ticket, !completed);
   };
 
-  const handleChangeAssignee = (e: any) => {
+  const handleChangeAssignee = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newAssigneeId = parseInt(e.target.value);
     onChangeAssignee && onChangeAssignee(ticket, newAssigneeId);
   };
 
   return (
-    <div>
+    <SingleTicketWrapper>
       <h3>{ticket.description}</h3>
       <p>Assignee: {assignee ? assignee.name : 'unassigned'}</p>
       {!readOnly && (
@@ -57,8 +56,15 @@ const SingleTicket = ({
           onChange={handleChangeCompleted}
         />
       </div>
-    </div>
+    </SingleTicketWrapper>
   );
 };
+
+const SingleTicketWrapper = styled['div']`
+  border: 1px solid black;
+  padding: 10px;
+  background-color: #e5e5e5;
+  width: fit-content;
+`;
 
 export default SingleTicket;
