@@ -11,10 +11,19 @@ export interface TicketsProps {
   fetchTickets: () => void;
 }
 
+enum COMPLETE_STATUS {
+  ALL = '',
+  COMPLETED = 'true',
+  NOT_COMPLETED = 'false',
+}
+
 export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
   const navigate = useNavigate();
   const [ticketDescription, setTicketDescription] = useState('');
   const [isAddingTicket, setIsAddingTicket] = useState(false);
+
+  const [filterCompleteStatus, setFilterCompleteStatus] =
+    useState<COMPLETE_STATUS>(COMPLETE_STATUS.ALL);
 
   const getAssignee = (id: number | null) => {
     if (id === null) {
@@ -59,21 +68,43 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
         Add ticket
       </button>
 
+      {/* //add filter by completed */}
+      <select
+        onChange={(e) =>
+          setFilterCompleteStatus(e.target.value as COMPLETE_STATUS)
+        }
+        value={filterCompleteStatus}
+      >
+        <option value={COMPLETE_STATUS.ALL}>All</option>
+        <option value={COMPLETE_STATUS.COMPLETED}>Completed</option>
+        <option value={COMPLETE_STATUS.NOT_COMPLETED}>Not completed</option>
+      </select>
+
       {tickets ? (
         <div>
-          {tickets.map((t) => (
-            <div key={t.id}>
-              <SingleTicket
-                ticket={t}
-                user={getAssignee(t.assigneeId)}
-                users={users}
-                readOnly
-              />
-              <button onClick={() => handleGoToDetailPage(t.id)}>
-                Go to detail page
-              </button>
-            </div>
-          ))}
+          {tickets
+            .filter((ticket) => {
+              if (filterCompleteStatus === COMPLETE_STATUS.ALL) {
+                return true;
+              }
+              return (
+                ticket.completed ===
+                (filterCompleteStatus === COMPLETE_STATUS.COMPLETED)
+              );
+            })
+            .map((t) => (
+              <div key={t.id}>
+                <SingleTicket
+                  ticket={t}
+                  user={getAssignee(t.assigneeId)}
+                  users={users}
+                  readOnly
+                />
+                <button onClick={() => handleGoToDetailPage(t.id)}>
+                  Go to detail page
+                </button>
+              </div>
+            ))}
         </div>
       ) : (
         <span>...</span>
