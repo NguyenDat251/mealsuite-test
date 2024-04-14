@@ -1,3 +1,9 @@
+# What I have done
+
+- Whenever I make an update, I don't re-fetch the data. Instead, I update the state directly, so the UI doesn't need a loading time to show the new data.
+- Debounce the updating requests when the user clicks on the "Completed" checkbox multiple times.
+- Disable the back button when changing the assignment, since I make two API requests, one to unassign and assign a new one, so it will take a long time to update. I haven't checked if I need to make two requests because the time is up.
+
 # Coding assignment
 
 The goal of this assignment is to showcase your ability to develop features and your coding style. Due to the time
