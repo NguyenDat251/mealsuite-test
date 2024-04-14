@@ -39,13 +39,9 @@ const SingleTicket = ({
       <h3>{ticket.description}</h3>
       <p>Assignee: {assignee ? assignee.name : 'unassigned'}</p>
       {!readOnly && (
-        <select onChange={handleChangeAssignee}>
+        <select onChange={handleChangeAssignee} value={assignee?.name}>
           {users.map((u) => (
-            <option
-              key={u.id}
-              value={u.id}
-              selected={u.name === assignee?.name}
-            >
+            <option key={u.id} value={u.id}>
               {u.name}
             </option>
           ))}

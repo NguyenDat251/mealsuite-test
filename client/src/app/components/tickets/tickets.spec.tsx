@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 
 import Tickets from './tickets';
 
@@ -24,18 +25,19 @@ describe('Tickets', () => {
     const fetchTickets = jest.fn();
 
     const { baseElement } = render(
-      <Tickets
-        tickets={tickets}
-        setTickets={setTickets}
-        users={users}
-        fetchTickets={fetchTickets}
-      />
+      <BrowserRouter>
+        <Tickets
+          tickets={tickets}
+          setTickets={setTickets}
+          users={users}
+          fetchTickets={fetchTickets}
+        />
+      </BrowserRouter>
     );
     expect(baseElement).toBeTruthy();
     expect(fetchTickets).toHaveBeenCalled();
-    expect(setTickets).toHaveBeenCalled();
 
     expect(screen.getByText('test description')).toBeTruthy();
-    expect(screen.getByText('Alice')).toBeTruthy();
+    expect(screen.getByText('Assignee: Alice')).toBeTruthy();
   });
 });

@@ -12,7 +12,14 @@ describe('SingleTicket', () => {
       assigneeId: 1,
       completed: false,
     };
-    render(<SingleTicket ticket={ticket} users={[]} />);
+    const users = [
+      {
+        id: 1,
+        name: 'Alice',
+      },
+    ];
+
+    render(<SingleTicket ticket={ticket} users={users} />);
     expect(screen.getByText('test description')).toBeTruthy();
     expect(screen.getByText('Assignee: Alice')).toBeTruthy();
   });
