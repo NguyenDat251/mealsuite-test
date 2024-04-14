@@ -10,7 +10,9 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    // "baseUrl": "./src",
+    // "paths": { "*": ["*"], "@acme/shared-models/*": ["@acme/shared-models/*"] }
   },
   "files": [],
   "include": [],
