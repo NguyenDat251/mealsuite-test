@@ -41,15 +41,20 @@ const SingleTicket = ({
       {!readOnly && (
         <select onChange={handleChangeAssignee}>
           {users.map((u) => (
-            <option key={u.id} value={u.id}>
+            <option
+              key={u.id}
+              value={u.id}
+              selected={u.name === assignee?.name}
+            >
               {u.name}
             </option>
           ))}
         </select>
       )}
       <div>
-        Completed:
+        <label>Completed:</label>
         <input
+          id="completedStatus"
           type="checkbox"
           checked={completed}
           value={ticket.id}

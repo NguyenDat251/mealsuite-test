@@ -9,6 +9,7 @@ export interface TicketsProps {
   tickets: Ticket[];
   users: User[];
   fetchTickets: () => void;
+  setTickets: React.Dispatch<React.SetStateAction<Ticket[]>>;
 }
 
 enum COMPLETE_STATUS {
@@ -17,20 +18,18 @@ enum COMPLETE_STATUS {
   NOT_COMPLETED = 'false',
 }
 
-export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
+export function Tickets({
+  tickets,
+  users,
+  fetchTickets,
+  setTickets,
+}: TicketsProps) {
   const navigate = useNavigate();
   const [ticketDescription, setTicketDescription] = useState('');
   const [isAddingTicket, setIsAddingTicket] = useState(false);
 
   const [filterCompleteStatus, setFilterCompleteStatus] =
     useState<COMPLETE_STATUS>(COMPLETE_STATUS.ALL);
-
-  const getAssignee = (id: number | null) => {
-    if (id === null) {
-      return undefined;
-    }
-    return users.find((u) => u.id === id);
-  };
 
   const handleGoToDetailPage = (ticketId: number) => {
     navigate(`/${ticketId}`);
@@ -45,9 +44,20 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
 
     setIsAddingTicket(true);
     try {
-      await axios.post('/api/tickets', {
-        description: ticketDescription,
-      });
+      await axios
+        .post('/api/tickets', {
+          description: ticketDescription,
+        })
+        .then((res) => {
+          setTickets((tickets) => {
+            return [
+              ...tickets,
+              {
+                ...res.data,
+              },
+            ];
+          });
+        });
     } catch (e) {
       console.error(e);
     }
@@ -109,7 +119,7 @@ export function Tickets({ tickets, users, fetchTickets }: TicketsProps) {
               <div key={t.id}>
                 <SingleTicket ticket={t} users={users} readOnly />
                 <button onClick={() => handleGoToDetailPage(t.id)}>
-                  Go to detail page
+                  Go to the detail page
                 </button>
               </div>
             ))}

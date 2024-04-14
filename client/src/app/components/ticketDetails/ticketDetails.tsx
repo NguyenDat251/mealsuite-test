@@ -9,20 +9,18 @@ import {
 } from '../../../types/general';
 import debounce from 'lodash-es/debounce';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
-const requestChangeAssignee: OnChangeAssignee = debounce(
-  async (ticket, assigneeId) => {
-    const ticketId = ticket.id;
+const requestChangeAssignee: OnChangeAssignee = async (ticket, assigneeId) => {
+  const ticketId = ticket.id;
 
-    try {
-      await axios.put(`/api/tickets/${ticketId}/unassign`);
-      axios.put(`/api/tickets/${ticketId}/assign/${assigneeId}`);
-    } catch (e) {
-      console.error(e);
-    }
-  },
-  1000
-);
+  try {
+    await axios.put(`/api/tickets/${ticketId}/unassign`);
+    axios.put(`/api/tickets/${ticketId}/assign/${assigneeId}`);
+  } catch (e) {
+    console.error(e);
+  }
+};
 
 const requestChangeCompletedStatus: OnChangeCompletedStatus = debounce(
   (ticket, isCompleted) => {
@@ -54,13 +52,7 @@ function TicketDetails({
   const { id } = useParams();
   const navigate = useNavigate();
   const ticket = tickets.find((t) => id && t.id === parseInt(id));
-
-  const getAssignee = (id: number | null) => {
-    if (id === null) {
-      return undefined;
-    }
-    return users.find((u) => u.id === id);
-  };
+  const [isUpdatingAssignee, setIsUpdatingAssignee] = useState(false);
 
   const onChangeCompletedStatus: OnChangeCompletedStatus = (
     ticket,
@@ -81,9 +73,7 @@ function TicketDetails({
     });
   };
 
-  const onChangeAssignee: OnChangeAssignee = (ticket, assigneeId) => {
-    requestChangeAssignee(ticket, assigneeId);
-
+  const onChangeAssignee: OnChangeAssignee = async (ticket, assigneeId) => {
     setTickets((tickets) => {
       const modifiedTicket = tickets.find((t) => t.id === ticket.id);
 
@@ -95,6 +85,10 @@ function TicketDetails({
 
       return [...tickets];
     });
+
+    setIsUpdatingAssignee(true);
+    await requestChangeAssignee(ticket, assigneeId);
+    setIsUpdatingAssignee(false);
   };
 
   const handleGoBack = () => {
@@ -121,7 +115,9 @@ function TicketDetails({
   return (
     <div>
       <h2>Ticket Details</h2>
-      <button onClick={handleGoBack}>Go back</button>
+      <button disabled={isUpdatingAssignee} onClick={handleGoBack}>
+        Go back
+      </button>
       {ticket ? (
         <div>
           <SingleTicket
